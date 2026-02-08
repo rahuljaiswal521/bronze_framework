@@ -1,0 +1,3 @@
+{"user_id": "u005", "event_type": "page_view", "page": "/about", "timestamp": "2024-06-01T11:00:00Z", "session_id": "s104"}
+{"user_id": "u006", "event_type": "click", "page": "/products/123", "timestamp": "2024-06-01T11:01:00Z", "session_id": "s105"}
+{"user_id": "u002", "event_type": "page_view", "page": "/profile", "timestamp": "2024-06-01T11:02:00Z", "session_id": "s101"}

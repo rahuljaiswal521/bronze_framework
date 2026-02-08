@@ -1,0 +1,5 @@
+{"user_id": "u001", "event_type": "page_view", "page": "/home", "timestamp": "2024-06-01T10:00:00Z", "session_id": "s100"}
+{"user_id": "u002", "event_type": "click", "page": "/products", "timestamp": "2024-06-01T10:01:00Z", "session_id": "s101"}
+{"user_id": "u003", "event_type": "page_view", "page": "/cart", "timestamp": "2024-06-01T10:02:00Z", "session_id": "s102"}
+{"user_id": "u001", "event_type": "purchase", "page": "/checkout", "timestamp": "2024-06-01T10:05:00Z", "session_id": "s100"}
+{"user_id": "u004", "event_type": "page_view", "page": "/home", "timestamp": "2024-06-01T10:06:00Z", "session_id": "s103"}

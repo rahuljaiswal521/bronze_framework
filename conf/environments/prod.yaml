@@ -1,0 +1,5 @@
+catalog: prod_catalog
+environment: prod
+checkpoint_base: /mnt/checkpoints/prod
+storage_base: abfss://prod@datalake.dfs.core.windows.net
+secret_scope: prod-secrets

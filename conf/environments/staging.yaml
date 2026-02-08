@@ -1,0 +1,5 @@
+catalog: staging_catalog
+environment: staging
+checkpoint_base: /mnt/checkpoints/staging
+storage_base: abfss://staging@datalake.dfs.core.windows.net
+secret_scope: staging-secrets

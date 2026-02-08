@@ -1,0 +1,5 @@
+catalog: dev_catalog
+environment: dev
+checkpoint_base: /mnt/checkpoints/dev
+storage_base: abfss://dev@datalake.dfs.core.windows.net
+secret_scope: dev-secrets

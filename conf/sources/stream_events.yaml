@@ -1,0 +1,53 @@
+name: user_events
+source_type: stream
+description: "Real-time user activity events from Kafka topic"
+enabled: true
+tags:
+  domain: user_activity
+  source_system: event_platform
+  priority: high
+
+extract:
+  load_type: incremental
+  kafka_bootstrap_servers: kafka-broker1:9092,kafka-broker2:9092,kafka-broker3:9092
+  kafka_topic: user-activity-events
+  kafka_consumer_group: bronze-ingestion
+  starting_offsets: earliest
+  checkpoint_path: ${checkpoint_base}/user_events/
+  kafka_options:
+    kafka.security.protocol: SASL_SSL
+    kafka.sasl.mechanism: PLAIN
+    kafka.sasl.jaas.config: "kafkashaded.org.apache.kafka.common.security.plain.PlainLoginModule required username='${kafka_user}' password='${kafka_password}';"
+    maxOffsetsPerTrigger: "100000"
+
+target:
+  catalog: ${catalog}
+  schema: bronze
+  table: user_activity_events
+  partition_by:
+    - _ingest_date
+  table_properties:
+    delta.autoOptimize.optimizeWrite: "true"
+    delta.autoOptimize.autoCompact: "true"
+  metadata_columns:
+    - name: _ingest_timestamp
+      expression: "current_timestamp()"
+    - name: _ingest_date
+      expression: "current_date()"
+    - name: _source_system
+      expression: "'event_platform'"
+    - name: _kafka_topic
+      expression: "col('topic')"
+    - name: _kafka_partition
+      expression: "col('partition')"
+    - name: _kafka_offset
+      expression: "col('offset')"
+  schema_evolution:
+    mode: rescue
+    rescued_data_column: _rescued_data
+  quality:
+    enabled: true
+    quarantine_threshold_pct: 5.0
+  cdc:
+    enabled: false
+    mode: append

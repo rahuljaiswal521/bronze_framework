@@ -1,0 +1,66 @@
+name: erp_orders
+source_type: jdbc
+description: "ERP system - Sales Orders table (incremental by updated_at)"
+enabled: true
+tags:
+  domain: sales
+  source_system: erp
+  priority: high
+
+connection:
+  host: erp-db.internal.company.com
+  port: 1433
+  database: ERP_PROD
+  driver: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  secret_scope: ${secret_scope}
+  secret_key_user: erp-db-user
+  secret_key_password: erp-db-password
+  properties:
+    encrypt: "true"
+    trustServerCertificate: "false"
+
+extract:
+  load_type: incremental
+  table: dbo.SalesOrders
+  partition_column: order_id
+  num_partitions: 8
+  fetch_size: 50000
+  watermark:
+    column: updated_at
+    type: timestamp
+    default_value: "2020-01-01T00:00:00"
+
+target:
+  catalog: ${catalog}
+  schema: bronze
+  table: erp_orders
+  partition_by:
+    - _ingest_date
+  table_properties:
+    delta.autoOptimize.optimizeWrite: "true"
+    delta.autoOptimize.autoCompact: "true"
+  metadata_columns:
+    - name: _ingest_timestamp
+      expression: "current_timestamp()"
+    - name: _ingest_date
+      expression: "current_date()"
+    - name: _source_system
+      expression: "'erp'"
+    - name: _source_file
+      expression: "lit('jdbc:erp_orders')"
+  schema_evolution:
+    mode: merge
+  quality:
+    enabled: true
+    quarantine_threshold_pct: 5.0
+  cdc:
+    enabled: true
+    mode: scd2
+    primary_keys:
+      - order_id
+    sequence_column: updated_at
+    exclude_columns_from_hash:
+      - _ingest_timestamp
+      - _ingest_date
+      - _source_file
+      - updated_at

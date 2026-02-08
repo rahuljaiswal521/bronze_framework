@@ -1,0 +1,54 @@
+resources:
+  jobs:
+    bronze_ingestion_daily:
+      name: "bronze_ingestion_daily_${var.environment}"
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"
+        timezone_id: UTC
+        pause_status: UNPAUSED
+      email_notifications:
+        on_failure:
+          - data-engineering@company.com
+      tags:
+        team: data-engineering
+        layer: bronze
+        environment: ${var.environment}
+      job_clusters:
+        - job_cluster_key: ingestion_cluster
+          new_cluster:
+            spark_version: "14.3.x-scala2.12"
+            node_type_id: Standard_DS3_v2
+            num_workers: 2
+            autoscale:
+              min_workers: 1
+              max_workers: 4
+            spark_conf:
+              spark.databricks.delta.schema.autoMerge.enabled: "true"
+              spark.sql.streaming.schemaInference: "true"
+            data_security_mode: USER_ISOLATION
+            policy_id: ${var.cluster_policy_id}
+      tasks:
+        - task_key: setup_catalog
+          job_cluster_key: ingestion_cluster
+          notebook_task:
+            notebook_path: ../notebooks/00_setup_catalog.py
+            base_parameters:
+              environment: ${var.environment}
+          libraries:
+            - whl: ../dist/bronze_framework-1.0.0-py3-none-any.whl
+
+        - task_key: run_ingestion
+          depends_on:
+            - task_key: setup_catalog
+          job_cluster_key: ingestion_cluster
+          notebook_task:
+            notebook_path: ../notebooks/01_run_ingestion.py
+            base_parameters:
+              environment: ${var.environment}
+              source_filter: ""
+              conf_dir: /Workspace/bronze_framework/conf
+          libraries:
+            - whl: ../dist/bronze_framework-1.0.0-py3-none-any.whl
+          timeout_seconds: 7200
+          max_retries: 1
+          retry_on_timeout: true

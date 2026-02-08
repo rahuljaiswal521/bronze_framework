@@ -1,0 +1,45 @@
+bundle:
+  name: bronze_ingestion_framework
+
+workspace:
+  root_path: /Workspace/bronze_framework
+
+artifacts:
+  bronze_framework_wheel:
+    type: whl
+    path: .
+    build: python setup.py bdist_wheel
+
+include:
+  - resources/*.yml
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-dev.azuredatabricks.net
+    variables:
+      environment: dev
+      catalog: dev_catalog
+      cluster_policy_id: dev-cluster-policy
+
+  staging:
+    mode: staging
+    workspace:
+      host: https://adb-staging.azuredatabricks.net
+    variables:
+      environment: staging
+      catalog: staging_catalog
+      cluster_policy_id: staging-cluster-policy
+
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-prod.azuredatabricks.net
+    run_as:
+      service_principal_name: bronze-ingestion-sp
+    variables:
+      environment: prod
+      catalog: prod_catalog
+      cluster_policy_id: prod-cluster-policy
